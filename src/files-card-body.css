@@ -62,22 +62,17 @@
         }
     }
 
-    .item-name {
-        /* Bump up the font size to standard for the filenames */
-        a {
-            font-size: var(--pf-t--global--font--size--md);
-        }
-
-        a::before {
-            /* content-visibility: auto; */
-            aspect-ratio: 1;
-            background-color: var(--color-icon);
-            block-size: var(--icon-size);
-            content: '';
-            mask-repeat: no-repeat;
-            mask-position: center;
-            mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1792"><path d="M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536z"/></svg>');
-        }
+    .item-name a {
+        font-size: var(--pf-t--global--font--size--md);
+    }
+    .item-name a:not(.has-thumbnail)::before {
+        aspect-ratio: 1;
+        background-color: var(--color-icon);
+        block-size: var(--icon-size);
+        content: '';
+        mask-repeat: no-repeat;
+        mask-position: center;
+        mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1792"><path d="M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536z"/></svg>');
     }
 
     .symlink {
@@ -188,6 +183,14 @@
             border-block-start: none;
         }
 
+        .item-name a {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px;
+            font-size: var(--pf-t--global--font--size--md);
+        }
+
         @media screen and (max-width: calc(-1px + 48rem)) {
             tr:nth-child(even) {
                 background-color: var(--pf-t--global--background--color--secondary--default);
@@ -241,6 +244,14 @@
 
         thead {
             display: none;
+        }
+
+        .item-name a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: var(--pf-t--global--font--size--md);
         }
 
         tbody {

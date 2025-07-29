@@ -143,7 +143,7 @@ export const FilesCardBody = ({
     setClipboard,
     showHidden,
     setShowHidden,
-} : {
+}: {
     currentFilter: string,
     setCurrentFilter: React.Dispatch<React.SetStateAction<string>>,
     files: FolderFileInfo[],
@@ -172,13 +172,13 @@ export const FilesCardBody = ({
     const isMounted = useRef<boolean>();
     const folderViewRef = useRef<HTMLDivElement>(null);
 
-    function calculateBoxPerRow () {
+    function calculateBoxPerRow() {
         const boxes = document.querySelectorAll(".fileview tbody > tr") as NodeListOf<HTMLElement>;
         if (boxes.length > 1) {
             let i = 0;
             const total = boxes.length;
             const firstOffset = boxes[0].offsetTop;
-            while (++i < total && boxes[i].offsetTop === firstOffset);
+            while (++i < total && boxes[i].offsetTop === firstOffset) ;
             setBoxPerRow(i);
         }
     }
@@ -212,7 +212,7 @@ export const FilesCardBody = ({
         const resetSelected = (e: MouseEvent) => {
             if ((e.target instanceof HTMLElement)) {
                 if (e.target.id === "folder-view" || e.target.id === "files-card-parent" ||
-                  (e.target.parentElement && e.target.parentElement.id === "folder-view")) {
+                    (e.target.parentElement && e.target.parentElement.id === "folder-view")) {
                     if (selected.length !== 0) {
                         setSelected([]);
                     }
@@ -569,6 +569,7 @@ export const FilesCardBody = ({
                               key={rowIndex}
                               file={file}
                               isSelected={selected.some(s => s.name === file.name)}
+                              path={path}
                             />)}
                     </Tbody>
                 </Table>}
@@ -579,6 +580,8 @@ export const FilesCardBody = ({
 const getFileType = (file: FolderFileInfo) => {
     if (file.to === "dir") {
         return "folder";
+    } else if (isImageFile(file.name)) {
+        return "image";
     } else if (file.category?.class) {
         return file.category.class;
     } else {
@@ -586,7 +589,7 @@ const getFileType = (file: FolderFileInfo) => {
     }
 };
 
-const FilePermissions = ({ file } : {
+const FilePermissions = ({ file }: {
     file: FolderFileInfo,
 }) => {
     const mode = file.mode;
@@ -614,7 +617,7 @@ const FilePermissions = ({ file } : {
     );
 };
 
-const FileOwnership = ({ file } : { file: FolderFileInfo, }) => {
+const FileOwnership = ({ file }: { file: FolderFileInfo, }) => {
     const ownerText = (file.user === file.group)
         ? file.user
         : `${file.user}:${file.group}`;
@@ -629,51 +632,63 @@ const FileOwnership = ({ file } : { file: FolderFileInfo, }) => {
 };
 
 // Memoize the Item component as rendering thousands of them on each render of parent component is costly.
-const Row = React.memo(function Item({ file, isSelected } : {
+const isImageFile = (filename: string): boolean => {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    return imageExtensions.some(ext =>
+        filename.toLowerCase().endsWith(ext));
+};
+
+const Row = React.memo(function Item({ file, isSelected, path }: {
     file: FolderFileInfo,
-    isSelected: boolean
+    isSelected: boolean,
+    path: string,
 }) {
     const fileType = getFileType(file);
+
     let className = fileType;
-    if (isSelected)
-        className += " row-selected";
-    if (file.type === "lnk")
-        className += " symlink";
+    if (isSelected) className += " row-selected";
+    if (file.type === "lnk") className += " symlink";
+
+    const thumbnailUrl = isImageFile(file.name)
+        ? `http://localhost:3000/image-service?path=${encodeURIComponent(path + '/' + file.name)}`
+        : '';
 
     return (
-        <Tr
-          className={className}
-          data-item={file.name}
-        >
-            <Td
-              className="item-name"
-              dataLabel={fileType}
-            >
-                <a href="#">{file.name}</a>
+        <Tr className={className} data-item={file.name}>
+            <Td className="item-name" dataLabel={fileType}>
+                <a
+                    href="#"
+                    className={thumbnailUrl ? "has-thumbnail" : ""}
+                    style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                    {thumbnailUrl && (
+                        <img
+                            src={thumbnailUrl}
+                            alt=""
+                            style={{
+                                height: "7rem",
+                                width: "9rem",
+                                objectFit: "contain",
+                                borderRadius: "2px",
+                                background: "#f5f5f5",
+                                border: "1px solid #e0e0e0"
+                            }}
+                            loading="lazy"
+                        />
+                    )}
+                    {file.name}
+                </a>
             </Td>
-            <Td
-              className="item-size pf-v6-m-tabular-nums"
-              dataLabel="size"
-            >
-                {file.type === 'reg' && cockpit.format_bytes(file.size)}
+            <Td className="item-size pf-v6-m-tabular-nums" dataLabel="size">
+                {file.type === "reg" && cockpit.format_bytes(file.size)}
             </Td>
-            <Td
-              className="item-date pf-v6-m-tabular-nums"
-              dataLabel="date"
-              modifier="nowrap"
-            >
+            <Td className="item-date pf-v6-m-tabular-nums" dataLabel="date" modifier="nowrap">
                 {file.mtime ? timeformat.dateTime(file.mtime * 1000) : null}
             </Td>
-            <Td
-              className="item-owner"
-              modifier="nowrap"
-            >
+            <Td className="item-owner" modifier="nowrap">
                 <FileOwnership file={file} />
             </Td>
-            <Td
-              className="item-perms"
-              modifier="nowrap"
-            >
+            <Td className="item-perms" modifier="nowrap">
                 <FilePermissions file={file} />
             </Td>
         </Tr>

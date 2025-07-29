@@ -12,5 +12,7 @@
                 }
             ]
         }
-    }
+    },
+
+    "content-security-policy": "img-src 'self' http://localhost:3000 data:;"
 }
